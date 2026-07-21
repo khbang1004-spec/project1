@@ -17,25 +17,123 @@ const weatherLabels = {
 
 const defaultOopsArchive = [
   {
-    id: "oops-1",
-    title: "문제: 0.25 + 0.7 = ?",
-    wrongAnswer: "0.32",
+    id: "calc-1-1", unit: "수열의 극한",
+    title: "lim(n→∞) (2n+1)/(3n-2) 의 값은?",
+    wrongAnswer: "0 또는 1/3 (분자·분모를 n으로 나누지 않고 상수항만 비교)",
+    wrongAnswerImage: null,
     reasons: [
-      "자리수를 맞추지 않고 더함",
-      "0.25를 25로 느껴서 정수처럼 계산",
-      "소수점 위치 규칙을 헷갈림",
-      "긴장해서 평소 아는 것도 놓침"
+      "분자·분모를 최고차항 n으로 나누지 않음",
+      "n→∞일 때 1/n→0 처리를 빠뜨림",
+      "최고차항 계수의 비율 공식을 다른 유형과 혼동",
+      "극한 계산 도중 부호를 잘못 처리"
     ]
   },
   {
-    id: "oops-2",
-    title: "문제: 3/4 + 1/2 = ?",
-    wrongAnswer: "4/6",
+    id: "calc-1-2", unit: "수열의 극한",
+    title: "lim(n→∞) √(n²+n) - n 의 값은?",
+    wrongAnswer: "0 (루트 안 n²과 밖 n이 상쇄된다고 생각)",
+    wrongAnswerImage: null,
     reasons: [
-      "분모끼리 더한다고 생각함",
-      "통분을 빼먹음",
-      "분수 덧셈 절차 기억이 흐려짐",
-      "익숙한 자연수 덧셈 습관이 나옴"
+      "유리화(분자·분모에 켤레식 곱하기)를 떠올리지 못함",
+      "√(n²+n) ≈ n이므로 차이가 0이라고 직관으로 판단",
+      "루트를 풀어 정리하는 과정에서 n²+n을 n(n+1)로 변환 안 함",
+      "계산 중 분모 극한 처리를 생략"
+    ]
+  },
+  {
+    id: "calc-2-1", unit: "급수",
+    title: "1 + 1/2 + 1/4 + 1/8 + ⋯ 의 합은?",
+    wrongAnswer: "1/2 (공비 r만 답으로 씀)",
+    wrongAnswerImage: null,
+    reasons: [
+      "S = a/(1-r) 공식에서 첫째항 a=1 을 적용하지 않음",
+      "1/(1-r) 만 계산하고 a를 곱하지 않음",
+      "급수와 수열의 극한을 혼동해 공비 자체를 결과로 씀",
+      "수렴 조건 |r|<1 을 확인하지 않고 공식만 적용"
+    ]
+  },
+  {
+    id: "calc-3-1", unit: "함수의 극한",
+    title: "lim(x→0) sin(x)/x 의 값은?",
+    wrongAnswer: "0 (x=0 직접 대입: sin(0)/0 = 0)",
+    wrongAnswerImage: null,
+    reasons: [
+      "0/0 형태의 부정형임을 인식하지 못하고 직접 대입",
+      "삼각함수 극한 기본 공식 lim(x→0) sin(x)/x = 1을 암기하지 못함",
+      "0 ÷ 0 = 0으로 처리하는 계산 습관",
+      "극한값과 함숫값(대입값)을 구분하지 못함"
+    ]
+  },
+  {
+    id: "calc-3-2", unit: "함수의 연속",
+    title: "f(x) = (x²-1)/(x-1)은 x=1에서 연속인가?",
+    wrongAnswer: "연속 (약분하면 x+1이므로 f(1)=2라고 판단)",
+    wrongAnswerImage: null,
+    reasons: [
+      "f(1)이 정의되지 않음(분모=0)을 확인하지 않음",
+      "약분된 식을 원래 함수와 동일하게 봄",
+      "연속의 3조건(정의·극한 존재·일치)을 순서대로 체크하지 않음",
+      "극한값이 존재하면 자동으로 연속이라고 착각"
+    ]
+  },
+  {
+    id: "calc-4-1", unit: "미분법 – 곱의 미분",
+    title: "y = x·sin(x) 를 x에 대해 미분하면?",
+    wrongAnswer: "y' = cos(x) (sin(x)만 미분)",
+    wrongAnswerImage: null,
+    reasons: [
+      "곱의 미분법 (uv)' = u'v + uv' 를 적용하지 않음",
+      "x의 도함수가 1임을 빠뜨려 두 번째 항을 생략",
+      "두 함수의 곱이 아닌 합성처럼 처리",
+      "공식은 알지만 x 부분도 미분해야 한다는 걸 순간 놓침"
+    ]
+  },
+  {
+    id: "calc-4-2", unit: "미분법 – 합성함수",
+    title: "y = sin(x²) 을 미분하면?",
+    wrongAnswer: "y' = cos(x²) (겉함수만 미분)",
+    wrongAnswerImage: null,
+    reasons: [
+      "합성함수 미분(연쇄법칙)을 적용하지 않음",
+      "안쪽 함수 x²의 도함수 2x를 곱하지 않음",
+      "겉함수만 미분하면 된다고 착각",
+      "합성 미분과 곱의 미분을 혼동해 다른 공식을 적용"
+    ]
+  },
+  {
+    id: "calc-4-3", unit: "도함수의 활용 – 극값",
+    title: "f(x) = x³ - 3x 의 극값을 구하면?",
+    wrongAnswer: "f'(x)=0 인 x=±1 만 구하고 극값 여부 판단 생략",
+    wrongAnswerImage: null,
+    reasons: [
+      "f'(x)=0 이면 항상 극값이라고 오해",
+      "f' 의 부호 변화(양→음, 음→양)를 확인하지 않음",
+      "증감표를 그리지 않고 x 값만 보고 답을 씀",
+      "극댓값·극솟값 구분 없이 f'=0 의 해를 모두 극값으로 처리"
+    ]
+  },
+  {
+    id: "calc-5-1", unit: "적분법 – 치환적분",
+    title: "∫ 2x·e^(x²) dx 를 구하면?",
+    wrongAnswer: "x²·e^(x²) + C (각 항을 따로 적분)",
+    wrongAnswerImage: null,
+    reasons: [
+      "u = x² 치환적분을 적용해야 함을 인식 못 함",
+      "u = x² 으로 놓으면 du = 2x dx 임을 연결하지 못함",
+      "e^(x²) 을 e^x 처럼 직접 적분",
+      "적분과 미분의 역연산 관계를 혼동해 곱 미분 결과를 역산"
+    ]
+  },
+  {
+    id: "calc-5-2", unit: "정적분",
+    title: "∫₀¹ (3x² + 2x) dx 의 값은?",
+    wrongAnswer: "2 (F(1)-F(0) 계산에서 F(0) 처리 실수)",
+    wrongAnswerImage: null,
+    reasons: [
+      "F(0) = 0 임을 확인하지 않아 대입값 오류",
+      "부정적분을 구하는 것까지만 하고 한계 대입을 빠뜨림",
+      "x³+x² 의 x=1 대입에서 덧셈 계산 실수",
+      "정적분 계산 후 정리 단계에서 산술 오류"
     ]
   }
 ];
@@ -168,14 +266,18 @@ function sanitizeOopsPrompt(item) {
     ? item.reasons.map((r) => String(r).trim()).filter(Boolean)
     : [];
 
-  if (!item.id || !item.title || !item.wrongAnswer || reasons.length < 2) {
+  if (!item.id || !item.title || reasons.length < 2) {
     return null;
   }
 
   return {
     id: String(item.id),
+    unit: item.unit ? String(item.unit) : "기타",
     title: String(item.title),
-    wrongAnswer: String(item.wrongAnswer),
+    wrongAnswer: item.wrongAnswer ? String(item.wrongAnswer) : "",
+    wrongAnswerImage: typeof item.wrongAnswerImage === "string" && item.wrongAnswerImage.startsWith("data:image")
+      ? item.wrongAnswerImage
+      : null,
     reasons: reasons.slice(0, 6)
   };
 }
@@ -596,6 +698,46 @@ function bindOopsArchiveManager() {
   const select = document.querySelector("#active-oops-select");
   const form = document.querySelector("#new-oops-form");
   const feedback = document.querySelector("#new-oops-feedback");
+  const imgInput = document.querySelector("#new-oops-img");
+  const imgPreview = document.querySelector("#new-oops-img-preview");
+
+  let pendingImageDataUrl = null;
+
+  if (imgInput) {
+    imgInput.addEventListener("change", () => {
+      const file = imgInput.files[0];
+      if (!file) {
+        pendingImageDataUrl = null;
+        if (imgPreview) {
+          imgPreview.innerHTML = "";
+        }
+        return;
+      }
+
+      if (!file.type.startsWith("image/")) {
+        feedback.textContent = "이미지 파일만 첨부할 수 있습니다.";
+        feedback.style.color = "#d94841";
+        imgInput.value = "";
+        return;
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        feedback.textContent = "이미지는 2MB 이하만 첨부 가능합니다.";
+        feedback.style.color = "#d94841";
+        imgInput.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        pendingImageDataUrl = event.target.result;
+        if (imgPreview) {
+          imgPreview.innerHTML = `<img src="${pendingImageDataUrl}" alt="오답 사진 미리보기">`;
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
   select.addEventListener("change", () => {
     state.activeOopsId = select.value;
@@ -605,30 +747,49 @@ function bindOopsArchiveManager() {
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
+    const unit = document.querySelector("#new-oops-unit").value;
     const title = document.querySelector("#new-oops-title").value.trim();
     const wrong = document.querySelector("#new-oops-wrong").value.trim();
     const reasonsRaw = document.querySelector("#new-oops-reasons").value;
     const reasons = reasonsRaw.split("\n").map((item) => item.trim()).filter(Boolean);
 
-    if (!title || !wrong || reasons.length < 2) {
-      feedback.textContent = "문제/오답/이유(최소 2개)를 입력해 주세요.";
+    if (!title) {
+      feedback.textContent = "문제 문장을 입력해 주세요.";
+      feedback.style.color = "#d94841";
+      return;
+    }
+
+    if (!wrong && !pendingImageDataUrl) {
+      feedback.textContent = "오답 텍스트 또는 오답 사진을 입력해 주세요.";
+      feedback.style.color = "#d94841";
+      return;
+    }
+
+    if (reasons.length < 2) {
+      feedback.textContent = "공감 이유를 최소 2개 입력해 주세요.";
       feedback.style.color = "#d94841";
       return;
     }
 
     const prompt = {
       id: `oops-${Date.now()}`,
-      title: title.startsWith("문제:") ? title : `문제: ${title}`,
+      unit,
+      title,
       wrongAnswer: wrong,
+      wrongAnswerImage: pendingImageDataUrl,
       reasons: reasons.slice(0, 6)
     };
 
     state.oopsArchive.unshift(prompt);
     state.activeOopsId = prompt.id;
-    addLog(`교사가 새 오답 사례를 추가했어요. (${prompt.title})`);
+    addLog(`교사가 새 오답 사례를 추가했어요. [${unit}] ${title}`);
     saveState();
 
     form.reset();
+    pendingImageDataUrl = null;
+    if (imgPreview) {
+      imgPreview.innerHTML = "";
+    }
     feedback.textContent = "오답 사례가 추가되고 현재 문제로 설정되었습니다.";
     feedback.style.color = "#0f9d94";
 
@@ -692,18 +853,47 @@ function getActiveOopsPrompt() {
 function renderActiveOopsPrompt() {
   const prompt = getActiveOopsPrompt();
   const question = document.querySelector("#oops-question");
-  const wrongAnswer = document.querySelector("#oops-wrong-answer");
+  const wrongAnswerEl = document.querySelector("#oops-wrong-answer");
+  const wrongImgEl = document.querySelector("#oops-wrong-img");
   const choiceList = document.querySelector("#oops-choice-list");
 
   if (!prompt) {
     question.textContent = "문제가 비어 있습니다.";
-    wrongAnswer.textContent = "-";
+    if (wrongAnswerEl) {
+      wrongAnswerEl.textContent = "-";
+    }
+    if (wrongImgEl) {
+      wrongImgEl.innerHTML = "";
+      wrongImgEl.hidden = true;
+    }
     choiceList.innerHTML = "";
     return;
   }
 
+  if (prompt.unit) {
+    const unitTag = document.querySelector("#oops-unit-tag");
+    if (unitTag) {
+      unitTag.textContent = prompt.unit;
+    }
+  }
+
   question.textContent = prompt.title;
-  wrongAnswer.textContent = prompt.wrongAnswer;
+
+  if (wrongAnswerEl) {
+    wrongAnswerEl.textContent = prompt.wrongAnswer || "";
+    wrongAnswerEl.closest("p").hidden = !prompt.wrongAnswer;
+  }
+
+  if (wrongImgEl) {
+    if (prompt.wrongAnswerImage) {
+      wrongImgEl.innerHTML = `<img src="${prompt.wrongAnswerImage}" alt="오답 사진">`;
+      wrongImgEl.hidden = false;
+    } else {
+      wrongImgEl.innerHTML = "";
+      wrongImgEl.hidden = true;
+    }
+  }
+
   choiceList.innerHTML = "";
   selectedOopsReason = "";
 
@@ -892,14 +1082,49 @@ function renderOopsArchivePicker() {
   const select = document.querySelector("#active-oops-select");
   select.innerHTML = "";
 
+  const byUnit = {};
   state.oopsArchive.forEach((prompt) => {
-    const option = document.createElement("option");
-    option.value = prompt.id;
-    option.textContent = `${prompt.title} | 오답: ${prompt.wrongAnswer}`;
-    select.appendChild(option);
+    const u = prompt.unit || "기타";
+    if (!byUnit[u]) {
+      byUnit[u] = [];
+    }
+    byUnit[u].push(prompt);
+  });
+
+  Object.entries(byUnit).forEach(([unit, prompts]) => {
+    const group = document.createElement("optgroup");
+    group.label = unit;
+    prompts.forEach((prompt) => {
+      const option = document.createElement("option");
+      option.value = prompt.id;
+      option.textContent = prompt.title;
+      group.appendChild(option);
+    });
+    select.appendChild(group);
   });
 
   select.value = state.activeOopsId;
+
+  const preview = document.querySelector("#active-oops-preview");
+  if (preview) {
+    const active = getActiveOopsPrompt();
+    if (active) {
+      const imgHtml = active.wrongAnswerImage
+        ? `<img src="${active.wrongAnswerImage}" alt="오답 사진">`
+        : "";
+      const textHtml = active.wrongAnswer
+        ? `<p class="oops-wrong-text"><strong>오답:</strong> ${active.wrongAnswer}</p>`
+        : "";
+      preview.innerHTML = `
+        <p class="oops-preview-unit">[${active.unit || "기타"}]</p>
+        <p class="oops-preview-title">${active.title}</p>
+        ${textHtml}${imgHtml}
+        <p class="oops-preview-reasons">공감 이유 ${active.reasons.length}개 설정됨</p>
+      `;
+    } else {
+      preview.innerHTML = "<p class='section-copy'>선택된 문제가 없습니다.</p>";
+    }
+  }
 }
 
 function renderRosterTable() {

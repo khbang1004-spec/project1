@@ -592,12 +592,181 @@ button:focus {
   text-align: right;
 }
 
+/* ── 교사 대시보드 그리드 ─────────────────── */
+.teacher-grid {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.dash-panel {
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.dash-panel.span-full {
+  grid-column: 1 / -1;
+}
+
+.dash-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.dash-panel-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.dash-panel-header.color-sky {
+  background: linear-gradient(135deg, #dff0ff, #eef7ff);
+}
+
+.dash-panel-header.color-teal {
+  background: linear-gradient(135deg, #d8faf6, #edfffe);
+}
+
+.dash-panel-header.color-amber {
+  background: linear-gradient(135deg, #fff4da, #fffae9);
+}
+
+.dash-panel-header.color-purple {
+  background: linear-gradient(135deg, #f3e8ff, #faf4ff);
+}
+
+.panel-icon {
+  font-size: 1.1rem;
+}
+
+.dash-panel > *:not(.dash-panel-header) {
+  padding: 0.8rem 1rem;
+}
+
+.dash-panel > .mini-stats {
+  padding: 0.8rem 1rem 0;
+}
+
+.subsection-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--soft-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dash-sub-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+}
+
+.dash-log-wrap {
+  border-top: 1px solid var(--line);
+  padding: 0.8rem 1rem;
+}
+
+/* 오답 갤러리 운영 내부 2열 */
+.oops-manage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 1.2rem;
+  padding: 0.8rem 1rem;
+}
+
+/* 이미지 업로드 */
+.oops-img-upload-row {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.img-preview {
+  margin-top: 0.3rem;
+}
+
+.img-preview img,
+#oops-wrong-img img {
+  max-width: 100%;
+  max-height: 180px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  object-fit: contain;
+}
+
+/* 현재 문제 미리보기 박스 */
+.oops-preview-box {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+.oops-preview-unit {
+  margin: 0 0 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--teal);
+  text-transform: uppercase;
+}
+
+.oops-preview-title {
+  margin: 0 0 0.4rem;
+  font-weight: 700;
+}
+
+.oops-wrong-text {
+  margin: 0 0 0.3rem;
+  font-size: 0.9rem;
+  color: var(--soft-ink);
+}
+
+.oops-preview-reasons {
+  margin: 0.4rem 0 0;
+  font-size: 0.82rem;
+  color: var(--soft-ink);
+}
+
+/* 학생 화면 - 오답 단원 배지 */
+.oops-unit-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #e9fffd, #eef7ff);
+  border: 1px solid rgba(15, 157, 148, 0.3);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--teal);
+  margin: 0 0 0.4rem;
+}
+
+/* 명단 관리 2열 */
+.roster-manage-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem;
+}
+
 @media (max-width: 980px) {
   .layout {
     grid-template-columns: 1fr;
   }
 
-  .role-grid {
+  .role-grid,
+  .teacher-grid,
+  .dash-sub-grid,
+  .oops-manage-grid,
+  .roster-manage-grid {
     grid-template-columns: 1fr;
   }
 }
