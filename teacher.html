@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>교사 화면 | Math Care Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="teacher">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <header class="hero">
+    <div class="page-links">
+      <a href="index.html">역할 선택</a>
+      <a href="student.html">학생 화면</a>
+      <button id="teacher-logout" class="linkish-btn" type="button">로그아웃</button>
+    </div>
+    <p class="eyebrow">SEL 기반 수학 수업 도구</p>
+    <h1>교사 대시보드</h1>
+    <p class="hero-copy">학급 전체 누적 데이터와 학생별 누적 현황을 함께 확인합니다.</p>
+  </header>
+
+  <main class="layout-single">
+    <section class="card dashboard-panel">
+      <div class="dashboard-head">
+        <h2>학급 전체 누적</h2>
+        <button id="reset-all" class="ghost-btn" type="button">전체 데이터 초기화</button>
+      </div>
+      <p class="section-copy">학생 페이지에서 제출된 누적 데이터가 여기에 반영됩니다.</p>
+
+      <div class="mini-stats">
+        <div>
+          <p class="stat-label">전체 감정 체크인</p>
+          <p id="total-weather" class="stat-value">0</p>
+        </div>
+        <div>
+          <p class="stat-label">전체 오답 인사이트</p>
+          <p id="total-oops" class="stat-value">0</p>
+        </div>
+        <div>
+          <p class="stat-label">전체 해빗 체크</p>
+          <p id="total-habit" class="stat-value">0</p>
+        </div>
+      </div>
+
+      <section class="dashboard-block">
+        <h3>학급 감정 기상도</h3>
+        <div id="weather-summary" class="summary-grid"></div>
+      </section>
+
+      <section class="dashboard-block">
+        <h3>오답 공감 랭킹</h3>
+        <ol id="oops-summary" class="summary-list"></ol>
+      </section>
+
+      <section class="dashboard-block">
+        <h3>오답 갤러리 큐레이션</h3>
+        <p class="section-copy">현재 활동 문제를 선택하거나 새 오답 사례를 추가하세요.</p>
+        <div class="stack-gap">
+          <label class="field-label" for="active-oops-select">현재 학생 화면에 표시할 문제</label>
+          <select id="active-oops-select"></select>
+
+          <form id="new-oops-form" class="stack-gap">
+            <label class="field-label" for="new-oops-title">문제 문장</label>
+            <input id="new-oops-title" maxlength="100" placeholder="예: 3/4 + 1/2 = ?" required>
+
+            <label class="field-label" for="new-oops-wrong">학생 오답</label>
+            <input id="new-oops-wrong" maxlength="40" placeholder="예: 4/6" required>
+
+            <label class="field-label" for="new-oops-reasons">공감 이유 4개 (줄바꿈으로 구분)</label>
+            <textarea id="new-oops-reasons" rows="4" placeholder="분모끼리 더한다고 생각함&#10;통분을 빼먹음&#10;덧셈 규칙 기억이 흐려짐&#10;긴장해서 급하게 계산함" required></textarea>
+
+            <button class="primary-btn" type="submit">오답 사례 추가</button>
+            <p id="new-oops-feedback" class="feedback" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="dashboard-block">
+        <h3>해빗 누적 랭킹</h3>
+        <ol id="habit-summary" class="summary-list"></ol>
+      </section>
+
+      <section class="dashboard-block">
+        <h3>학생별 누적 현황</h3>
+        <div class="table-wrap">
+          <table class="student-table">
+            <thead>
+              <tr>
+                <th>학생</th>
+                <th>감정</th>
+                <th>오답</th>
+                <th>해빗</th>
+                <th>최근 감정</th>
+              </tr>
+            </thead>
+            <tbody id="student-summary-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="dashboard-block">
+        <h3>학생 명단 등록</h3>
+        <p class="section-copy">반코드+학번+이름이 모두 일치하는 학생만 입장할 수 있습니다.</p>
+        <form id="roster-form" class="roster-form stack-gap">
+          <input id="roster-class-code" maxlength="20" placeholder="반코드 (예: MATH-2-3)" required>
+          <input id="roster-student-number" maxlength="20" placeholder="학번 (예: 17)" required>
+          <input id="roster-student-name" maxlength="20" placeholder="이름" required>
+          <button class="primary-btn" type="submit">명단 추가</button>
+          <p id="roster-feedback" class="feedback" aria-live="polite"></p>
+        </form>
+
+        <div class="table-wrap">
+          <table class="student-table">
+            <thead>
+              <tr>
+                <th>반코드</th>
+                <th>학번</th>
+                <th>이름</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="roster-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="dashboard-block">
+        <h3>최근 참여 로그</h3>
+        <ul id="recent-log" class="recent-log"></ul>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer-note">
+    브라우저 로컬 저장 기반 프로토타입
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

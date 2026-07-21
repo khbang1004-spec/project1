@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학생 화면 | Math Care Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="student">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <header class="hero">
+    <div class="page-links">
+      <a href="index.html">역할 선택</a>
+      <a href="teacher-login.html">교사 로그인</a>
+    </div>
+    <p class="eyebrow">SEL 기반 수학 수업 도구</p>
+    <h1>학생 체크인</h1>
+    <p class="hero-copy">내 이름으로 참여하면, 바로 내 누적 기록을 볼 수 있어요.</p>
+  </header>
+
+  <main class="layout-auth">
+    <section class="card student-panel">
+      <section id="student-auth-stage" class="identity-box">
+        <h2>학생 입장 인증</h2>
+        <p class="section-copy">교사가 등록한 반코드/학번/이름이 일치해야 입장할 수 있습니다.</p>
+        <form id="student-auth-form" class="auth-grid-form">
+          <input id="auth-class-code" maxlength="20" placeholder="반코드 (예: MATH-2-3)" required>
+          <input id="auth-student-number" maxlength="20" placeholder="학번 (예: 17)" required>
+          <input id="auth-student-name" maxlength="20" placeholder="이름" required>
+          <button class="primary-btn" type="submit">입장하기</button>
+        </form>
+        <p id="auth-feedback" class="feedback" aria-live="polite"></p>
+        <p id="student-gate-note" class="gate-note">인증이 완료되면 활동 화면으로 이동합니다.</p>
+      </section>
+
+      <section id="student-app-stage" hidden>
+        <div class="student-active-bar">
+          <p id="student-active-info" class="section-copy">학생 정보</p>
+          <button id="student-logout" class="ghost-btn" type="button">학생 변경</button>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="학생 참여 기능">
+          <button class="tab-btn active" data-tab="weather" role="tab" aria-selected="true">1. 감정 날씨</button>
+          <button class="tab-btn" data-tab="oops" role="tab" aria-selected="false">2. 오답 갤러리</button>
+          <button class="tab-btn" data-tab="habit" role="tab" aria-selected="false">3. 마이크로 해빗</button>
+        </div>
+
+        <div id="weather" class="tab-content active" role="tabpanel">
+          <h2>수학 감정 날씨 체크인</h2>
+          <p class="section-copy">지금 내 마음을 가장 잘 나타내는 날씨를 선택해 주세요.</p>
+          <form id="weather-form" class="stack-gap">
+            <div class="weather-grid" role="radiogroup" aria-label="감정 날씨 선택">
+              <button type="button" class="weather-option" data-weather="sunny" aria-pressed="false">
+                <span class="emoji">☀️</span>
+                <span class="label">맑음</span>
+                <span class="hint">이해가 잘 돼요</span>
+              </button>
+              <button type="button" class="weather-option" data-weather="cloudy" aria-pressed="false">
+                <span class="emoji">☁️</span>
+                <span class="label">흐림</span>
+                <span class="hint">조금 헷갈려요</span>
+              </button>
+              <button type="button" class="weather-option" data-weather="storm" aria-pressed="false">
+                <span class="emoji">⛈️</span>
+                <span class="label">천둥번개</span>
+                <span class="hint">포기하고 싶어요</span>
+              </button>
+              <button type="button" class="weather-option" data-weather="rainbow" aria-pressed="false">
+                <span class="emoji">🌈</span>
+                <span class="label">무지개</span>
+                <span class="hint">어려운 걸 해냈어요</span>
+              </button>
+            </div>
+
+            <label class="field-label" for="weather-note">한 줄 메모(선택)</label>
+            <input id="weather-note" name="note" maxlength="50" placeholder="예: 분수 단원이 아직 어려워요">
+
+            <button class="primary-btn" type="submit">체크인 제출</button>
+            <p id="weather-feedback" class="feedback" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div id="oops" class="tab-content" role="tabpanel" hidden>
+          <h2>가치 있는 오답 갤러리</h2>
+          <p class="section-copy">오답의 논리와 노력을 함께 발견해요. 정답보다 사고 과정을 칭찬합니다.</p>
+
+          <article class="oops-card">
+            <h3 id="oops-question">문제 로딩 중...</h3>
+            <p><strong>학생 오답(익명):</strong> <span id="oops-wrong-answer">-</span></p>
+            <p class="oops-help">왜 이런 답이 나왔을지 가장 공감되는 이유를 골라주세요.</p>
+          </article>
+
+          <form id="oops-form" class="stack-gap">
+            <div>
+              <p class="field-label">이 오답이 나오는 이유</p>
+              <div id="oops-choice-list" class="choice-list" role="radiogroup" aria-label="오답 이유 선택"></div>
+            </div>
+
+            <label class="field-label" for="oops-comment">짧은 공감 코멘트(선택)</label>
+            <input id="oops-comment" name="comment" maxlength="60" placeholder="예: 나도 급하면 이렇게 풀 때가 있어요">
+
+            <button class="primary-btn" type="submit">오답 인사이트 남기기</button>
+            <p id="oops-feedback" class="feedback" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div id="habit" class="tab-content" role="tabpanel" hidden>
+          <h2>마이크로 해빗 트래커</h2>
+          <p class="section-copy">점수 대신 작은 태도 습관에 체크하세요. 오늘의 성공 경험을 모아갑니다.</p>
+          <form id="habit-form" class="stack-gap">
+            <div class="habit-list">
+              <label><input type="checkbox" name="habit" value="10분 집중 유지"> 10분 동안 딴생각 줄이기</label>
+              <label><input type="checkbox" name="habit" value="모르는 부분 별표"> 이해 안 가는 부분에 별표 치기</label>
+              <label><input type="checkbox" name="habit" value="짝꿍에게 친절 인사"> 짝꿍에게 인사/도움 주기</label>
+              <label><input type="checkbox" name="habit" value="틀린 문제 다시 풀기"> 틀린 문제 지우지 않고 옆에 다시 풀기</label>
+              <label><input type="checkbox" name="habit" value="질문 표시 남기기"> 질문하고 싶은 지점 표시하기</label>
+            </div>
+
+            <button class="primary-btn" type="submit">오늘 해빗 체크하기</button>
+            <p id="habit-feedback" class="feedback" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+    </section>
+
+    <aside id="student-dashboard-stage" class="card dashboard-panel" hidden>
+      <div class="dashboard-head">
+        <h2>내 누적 리포트</h2>
+      </div>
+      <p id="my-summary-title" class="section-copy">입장 인증 후 개인 누적이 표시됩니다.</p>
+
+      <div class="mini-stats">
+        <div>
+          <p class="stat-label">내 감정 체크인</p>
+          <p id="my-total-weather" class="stat-value">0</p>
+        </div>
+        <div>
+          <p class="stat-label">내 오답 공감</p>
+          <p id="my-total-oops" class="stat-value">0</p>
+        </div>
+        <div>
+          <p class="stat-label">내 해빗 체크</p>
+          <p id="my-total-habit" class="stat-value">0</p>
+        </div>
+      </div>
+
+      <section class="dashboard-block">
+        <h3>내 감정 기상도</h3>
+        <div id="my-weather-summary" class="summary-grid"></div>
+      </section>
+
+      <section class="dashboard-block">
+        <h3>내가 자주 선택한 오답 이유</h3>
+        <ol id="my-oops-summary" class="summary-list"></ol>
+      </section>
+
+      <section class="dashboard-block">
+        <h3>내 해빗 누적</h3>
+        <ol id="my-habit-summary" class="summary-list"></ol>
+      </section>
+
+      <section class="dashboard-block">
+        <h3>내 최근 로그</h3>
+        <ul id="my-recent-log" class="recent-log"></ul>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer-note">
+    동일 브라우저에서는 새로고침 후에도 누적 데이터가 유지됩니다.
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
