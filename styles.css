@@ -219,6 +219,12 @@ h1 {
   gap: 0.5rem;
 }
 
+.unit-select-form {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1.2fr auto;
+  gap: 0.5rem;
+}
+
 .session-line {
   display: flex;
   align-items: center;
@@ -464,6 +470,13 @@ button:focus {
   margin-bottom: 0.7rem;
 }
 
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+}
+
 .oops-help {
   margin-bottom: 0;
   color: var(--soft-ink);
@@ -476,12 +489,16 @@ button:focus {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 0.7rem;
+  justify-items: start;
 }
 
 .habit-list label {
   display: flex;
   gap: 0.55rem;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
 }
 
 .dashboard-head {
@@ -622,6 +639,10 @@ button:focus {
   border-bottom: 1px solid var(--line);
 }
 
+.teacher-toggle-panel .dash-panel-header {
+  cursor: default;
+}
+
 .dash-panel-header h2 {
   margin: 0;
   font-size: 1.05rem;
@@ -651,6 +672,18 @@ button:focus {
   padding: 0.8rem 1rem;
 }
 
+.teacher-toggle-panel[data-panel-collapsed="true"] > *:not(.dash-panel-header) {
+  display: none;
+}
+
+.teacher-toggle-panel[data-panel-collapsed="true"] .dash-panel-header {
+  border-bottom: 0;
+}
+
+.panel-toggle-btn {
+  min-width: 4.8rem;
+}
+
 .dash-panel > .mini-stats {
   padding: 0.8rem 1rem 0;
 }
@@ -669,6 +702,43 @@ button:focus {
   grid-template-columns: 1fr 1fr;
   gap: 0.8rem;
   padding: 0.8rem 1rem;
+}
+
+.teacher-entry-box {
+  border-top: 1px solid var(--line);
+  padding: 0.9rem 1rem 1rem;
+}
+
+.teacher-entry-copy {
+  margin-bottom: 0.6rem;
+}
+
+.teacher-entry-grid {
+  grid-template-columns: 1fr 1fr 1fr auto;
+  align-items: end;
+}
+
+.section-head-inline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.class-overview-head {
+  padding: 0.8rem 1rem 0;
+}
+
+.current-unit-badge {
+  display: inline-block;
+  margin: 0;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(47, 116, 255, 0.22);
+  background: linear-gradient(135deg, #eef6ff, #f3fbff);
+  color: #1954ad;
+  font-weight: 700;
+  font-size: 0.84rem;
 }
 
 .dash-log-wrap {
@@ -750,11 +820,96 @@ button:focus {
   margin: 0 0 0.4rem;
 }
 
+.oops-filter-box {
+  margin-bottom: 0.8rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f6fbff, #f7fffb);
+}
+
+.unit-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.oops-wall-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.oops-wall-item {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.7rem;
+  background: #fff;
+  animation: fadeUp 0.35s ease;
+}
+
+.oops-wall-item.teacher-view {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+.oops-wall-item h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.oops-wall-item .oops-wrong-text {
+  margin: 0;
+}
+
+.oops-wall-meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  color: var(--soft-ink);
+}
+
+.oops-line {
+  margin: 0.35rem 0;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.oops-comment-list {
+  margin: 0.6rem 0;
+  padding-left: 1.1rem;
+}
+
+.oops-comment-list li {
+  margin: 0.25rem 0;
+}
+
+.oops-comment-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem;
+}
+
 /* 명단 관리 2열 */
 .roster-manage-grid {
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 1rem;
+}
+
+.roster-sheet-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.file-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.roster-sheet-note {
+  margin: 0;
 }
 
 @media (max-width: 980px) {
@@ -767,6 +922,10 @@ button:focus {
   .dash-sub-grid,
   .oops-manage-grid,
   .roster-manage-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-entry-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -788,6 +947,10 @@ button:focus {
     grid-template-columns: 1fr;
   }
 
+  .unit-select-form {
+    grid-template-columns: 1fr;
+  }
+
   .session-line {
     flex-direction: column;
     align-items: flex-start;
@@ -800,7 +963,9 @@ button:focus {
 
   .weather-grid,
   .summary-grid,
-  .mini-stats {
+  .mini-stats,
+  .unit-filter-grid,
+  .oops-wall-grid {
     grid-template-columns: 1fr;
   }
 }

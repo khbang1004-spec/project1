@@ -28,11 +28,11 @@
   <main class="layout-single">
     <div class="teacher-grid">
 
-      <!-- ① 수업 현황 개요 -->
-      <section class="dash-panel">
+      <!-- ① 전체 수업 현황 개요 -->
+      <section class="dash-panel teacher-home-only">
         <div class="dash-panel-header color-sky">
           <span class="panel-icon">📊</span>
-          <h2>수업 현황 개요</h2>
+          <h2>전체 수업 현황 개요</h2>
           <button id="reset-all" class="ghost-btn small-btn" type="button" style="margin-left:auto">데이터 초기화</button>
         </div>
 
@@ -61,13 +61,117 @@
             <ol id="habit-summary" class="summary-list"></ol>
           </div>
         </div>
+
+        <div class="teacher-entry-box">
+          <div class="section-head-inline">
+            <div>
+              <p class="subsection-label">단원 선택</p>
+              <p class="section-copy teacher-entry-copy">단원을 선택하고 들어가면 해당 수업의 현황 개요와 활동 현황, 담벼락, 해빗 트래커가 열립니다.</p>
+            </div>
+          </div>
+          <form id="teacher-unit-entry-form" class="unit-filter-grid teacher-entry-grid">
+            <select id="teacher-entry-subject" aria-label="과목 선택" required></select>
+            <select id="teacher-entry-middle" aria-label="중단원 선택" required></select>
+            <select id="teacher-entry-minor" aria-label="소단원 선택" required></select>
+            <button class="primary-btn" type="submit">단원 화면 열기</button>
+          </form>
+          <p id="teacher-entry-feedback" class="feedback" aria-live="polite"></p>
+        </div>
       </section>
 
-      <!-- ② 학생 활동 현황 -->
-      <section class="dash-panel">
+      <!-- ② 명단 관리: 첫 화면 전용 -->
+      <section id="teacher-roster-panel" class="dash-panel span-full teacher-toggle-panel teacher-home-only" data-panel-collapsed="false">
+        <div class="dash-panel-header color-purple">
+          <span class="panel-icon">📋</span>
+          <h2>학생 명단 관리</h2>
+          <button class="ghost-btn small-btn panel-toggle-btn" type="button" aria-expanded="true" style="margin-left:auto">접기</button>
+        </div>
+        <p class="section-copy">반코드+학번+이름이 모두 일치하는 학생만 입장할 수 있습니다.</p>
+
+        <div class="roster-manage-grid">
+          <div class="stack-gap">
+            <div class="roster-sheet-tools">
+              <button id="roster-template-download" class="ghost-btn" type="button">엑셀 양식 다운로드</button>
+              <label class="ghost-btn file-trigger" for="roster-sheet-upload">엑셀 업로드</label>
+              <input id="roster-sheet-upload" type="file" accept=".xlsx,.xls,.csv" hidden>
+            </div>
+            <p class="section-copy roster-sheet-note">양식 파일을 내려받아 Excel에서 수정한 뒤 그대로 업로드할 수 있습니다.</p>
+            <p id="roster-sheet-feedback" class="feedback" aria-live="polite"></p>
+
+            <form id="roster-form" class="stack-gap">
+              <label class="field-label" for="roster-class-code">반코드</label>
+              <input id="roster-class-code" maxlength="20" placeholder="예: MATH-2-3" required>
+              <label class="field-label" for="roster-student-number">학번</label>
+              <input id="roster-student-number" maxlength="20" placeholder="예: 17" required>
+              <label class="field-label" for="roster-student-name">이름</label>
+              <input id="roster-student-name" maxlength="20" placeholder="예: 홍길동" required>
+              <button class="primary-btn" type="submit">명단 추가</button>
+              <p id="roster-feedback" class="feedback" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <div class="table-wrap">
+            <table class="student-table">
+              <thead>
+                <tr>
+                  <th>반코드</th>
+                  <th>학번</th>
+                  <th>이름</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="roster-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ③ 단원 수업 현황 개요 -->
+      <section id="teacher-class-overview-panel" class="dash-panel span-full teacher-class-only" hidden>
+        <div class="dash-panel-header color-sky">
+          <span class="panel-icon">🧭</span>
+          <h2>수업 현황 개요</h2>
+          <button id="teacher-back-home" class="ghost-btn small-btn" type="button" style="margin-left:auto">첫 화면으로</button>
+        </div>
+
+        <div class="class-overview-head">
+          <p id="teacher-current-unit-label" class="current-unit-badge"></p>
+          <p class="section-copy">선택한 수업 단원에 제출된 감정 체크인, 오답, 해빗 기록만 모아서 보여줍니다.</p>
+        </div>
+
+        <div class="mini-stats">
+          <div>
+            <p class="stat-label">이 수업 감정 체크인</p>
+            <p id="class-total-weather" class="stat-value">0</p>
+          </div>
+          <div>
+            <p class="stat-label">이 수업 오답 인사이트</p>
+            <p id="class-total-oops" class="stat-value">0</p>
+          </div>
+          <div>
+            <p class="stat-label">이 수업 해빗 체크</p>
+            <p id="class-total-habit" class="stat-value">0</p>
+          </div>
+        </div>
+
+        <div class="dash-sub-grid">
+          <div>
+            <p class="subsection-label">🌤 이 수업 감정 기상도</p>
+            <div id="class-weather-summary" class="summary-grid"></div>
+          </div>
+          <div>
+            <p class="subsection-label">🏃 이 수업 해빗 누적</p>
+            <ol id="class-habit-summary" class="summary-list"></ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ④ 학생 활동 현황 -->
+      <section class="dash-panel teacher-toggle-panel teacher-class-only" data-panel-collapsed="false" hidden>
         <div class="dash-panel-header color-teal">
           <span class="panel-icon">👥</span>
           <h2>학생 활동 현황</h2>
+          <button class="ghost-btn small-btn panel-toggle-btn" type="button" aria-expanded="true" style="margin-left:auto">접기</button>
         </div>
 
         <div class="table-wrap">
@@ -86,99 +190,50 @@
         </div>
 
         <div class="dash-log-wrap">
-          <p class="subsection-label">🕑 최근 참여 로그</p>
+          <p class="subsection-label">🕑 이 수업 최근 활동</p>
           <ul id="recent-log" class="recent-log"></ul>
         </div>
       </section>
 
-      <!-- ③ 오답 갤러리 운영 -->
-      <section class="dash-panel span-full">
+      <!-- ⑤ 학생 오답 담벼락 -->
+      <section class="dash-panel span-full teacher-toggle-panel teacher-class-only" data-panel-collapsed="false" hidden>
         <div class="dash-panel-header color-amber">
           <span class="panel-icon">💡</span>
-          <h2>오답 갤러리 운영</h2>
+          <h2>학생 오답 담벼락</h2>
+          <button class="ghost-btn small-btn panel-toggle-btn" type="button" aria-expanded="true" style="margin-left:auto">접기</button>
         </div>
 
         <div class="oops-manage-grid">
-          <!-- 왼쪽: 현재 문제 선택 + 공감 랭킹 -->
           <div class="stack-gap">
-            <p class="subsection-label">현재 학생 화면에 표시할 문제</p>
-            <select id="active-oops-select"></select>
-            <div id="active-oops-preview" class="oops-preview-box"></div>
-
-            <p class="subsection-label">📋 오답 공감 랭킹 (현재 문제)</p>
+            <p class="subsection-label">오답 이유 누적</p>
+            <p class="section-copy">학생 화면에서는 익명으로 보이지만, 교사 화면에서는 작성 학생과 댓글 작성 학생을 확인할 수 있습니다.</p>
             <ol id="oops-summary" class="summary-list"></ol>
           </div>
 
-          <!-- 오른쪽: 새 오답 사례 추가 -->
-          <div>
-            <p class="subsection-label">새 오답 사례 추가</p>
-            <form id="new-oops-form" class="stack-gap">
-              <label class="field-label" for="new-oops-unit">단원</label>
-              <select id="new-oops-unit">
-                <option value="수열의 극한">수열의 극한</option>
-                <option value="급수">급수</option>
-                <option value="함수의 극한">함수의 극한</option>
-                <option value="함수의 연속">함수의 연속</option>
-                <option value="미분법">미분법</option>
-                <option value="도함수의 활용">도함수의 활용</option>
-                <option value="적분법">적분법</option>
-                <option value="정적분">정적분</option>
-                <option value="기타">기타</option>
-              </select>
-
-              <label class="field-label" for="new-oops-title">문제 문장</label>
-              <input id="new-oops-title" maxlength="150" placeholder="예: lim(n→∞) (2n+1)/(3n-2) = ?" required>
-
-              <label class="field-label">학생 오답</label>
-              <input id="new-oops-wrong" maxlength="80" placeholder="텍스트로 입력 (예: 2/3 이 아닌 0)">
-              <div class="oops-img-upload-row">
-                <label class="field-label" for="new-oops-img">또는 오답 사진 첨부</label>
-                <input id="new-oops-img" type="file" accept="image/*">
-                <div id="new-oops-img-preview" class="img-preview"></div>
-              </div>
-
-              <label class="field-label" for="new-oops-reasons">공감 이유 (줄바꿈으로 구분, 최소 2개)</label>
-              <textarea id="new-oops-reasons" rows="5" placeholder="분자·분모를 n으로 나누지 않음&#10;n→∞일 때 1/n→0 처리를 빠뜨림&#10;최고차항 계수 비율 공식을 혼동함&#10;계산 중 부호를 잘못 처리함" required></textarea>
-
-              <button class="primary-btn" type="submit">오답 사례 추가</button>
-              <p id="new-oops-feedback" class="feedback" aria-live="polite"></p>
-            </form>
+          <div class="stack-gap">
+            <p class="subsection-label">공유된 오답 글</p>
+            <div id="teacher-oops-wall" class="oops-wall-grid"></div>
           </div>
         </div>
       </section>
 
-      <!-- ④ 학생 명단 관리 -->
-      <section class="dash-panel span-full">
+      <!-- ⑥ 해빗 트래커 -->
+      <section class="dash-panel teacher-toggle-panel teacher-class-only" data-panel-collapsed="false" hidden>
         <div class="dash-panel-header color-purple">
-          <span class="panel-icon">📋</span>
-          <h2>학생 명단 관리</h2>
+          <span class="panel-icon">✅</span>
+          <h2>해빗 트래커</h2>
+          <button class="ghost-btn small-btn panel-toggle-btn" type="button" aria-expanded="true" style="margin-left:auto">접기</button>
         </div>
-        <p class="section-copy">반코드+학번+이름이 모두 일치하는 학생만 입장할 수 있습니다.</p>
 
-        <div class="roster-manage-grid">
-          <form id="roster-form" class="stack-gap">
-            <label class="field-label" for="roster-class-code">반코드</label>
-            <input id="roster-class-code" maxlength="20" placeholder="예: MATH-2-3" required>
-            <label class="field-label" for="roster-student-number">학번</label>
-            <input id="roster-student-number" maxlength="20" placeholder="예: 17" required>
-            <label class="field-label" for="roster-student-name">이름</label>
-            <input id="roster-student-name" maxlength="20" placeholder="예: 홍길동" required>
-            <button class="primary-btn" type="submit">명단 추가</button>
-            <p id="roster-feedback" class="feedback" aria-live="polite"></p>
-          </form>
+        <div class="oops-manage-grid">
+          <div class="stack-gap">
+            <p class="subsection-label">해빗 누적 랭킹</p>
+            <ol id="class-habit-ranking" class="summary-list"></ol>
+          </div>
 
-          <div class="table-wrap">
-            <table class="student-table">
-              <thead>
-                <tr>
-                  <th>반코드</th>
-                  <th>학번</th>
-                  <th>이름</th>
-                  <th>관리</th>
-                </tr>
-              </thead>
-              <tbody id="roster-table"></tbody>
-            </table>
+          <div class="stack-gap">
+            <p class="subsection-label">최근 해빗 체크</p>
+            <ul id="class-habit-log" class="recent-log"></ul>
           </div>
         </div>
       </section>
@@ -189,6 +244,7 @@
     브라우저 로컬 저장 기반 프로토타입
   </footer>
 
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
