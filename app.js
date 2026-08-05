@@ -537,6 +537,20 @@ function buildTeacherShareLink() {
   return hasConfiguredBackend() ? buildPageUrl("teacher-login.html") : "";
 }
 
+function openExternalAuth(url) {
+  if (!url) {
+    return;
+  }
+
+  // Apps Script auth cannot be rendered inside many sandboxed iframes.
+  if (window.top && window.top !== window.self) {
+    window.open(url, "_blank", "noopener,noreferrer");
+    return;
+  }
+
+  window.location.href = url;
+}
+
 function getToneColor(tone) {
   if (tone === "error") {
     return "#d94841";
@@ -906,7 +920,7 @@ function bindTeacherLoginForm() {
 
     feedback.textContent = "구글 인증 페이지로 이동합니다...";
     feedback.style.color = "#0f9d94";
-    window.location.href = authUrl.toString();
+    openExternalAuth(authUrl.toString());
   });
 }
 
