@@ -3,8 +3,11 @@ const LEGACY_STORAGE_KEYS = ["mathCareStudioDataV3", "mathCareStudioDataV2"];
 const STUDENT_SESSION_KEY = "mathCareStudentSessionV2";
 const TEACHER_AUTH_KEY = "mathCareTeacherAuthV1";
 const STUDENT_AUTH_STATE_KEY = "mathCareStudentAuthStateV1";
+const TEACHER_AUTH_FLOW_STATE_KEY = "mathCareTeacherAuthFlowStateV1";
+const BACKEND_URL_STORAGE_KEY = "mathCareBackendUrlV1";
 
-const TEACHER_PIN = "2468";
+const DEFAULT_TEACHER_GAS_WEB_APP_URL = "";
+const TEACHER_AUTH_SESSION_HOURS = 12;
 const AUTH_MAX_FAILS = 5;
 const AUTH_LOCK_MINUTES = 10;
 
@@ -38,55 +41,86 @@ const UNIT_CATALOG = [
 const page = document.body.dataset.page;
 let selectedWeather = "";
 let teacherSelectedUnit = null;
-const state = loadState();
+const state = createEmptyState();
+const appRuntime = {
+  backendUrl: "",
+  remoteSyncChain: Promise.resolve()
+};
 
-if (page === "teacher-login") {
-  bindTeacherLoginForm();
-}
-
-if (page === "student") {
-  setupTabs();
-  setupWeatherOptions();
-  bindStudentUnitSelects();
-  bindStudentAuthForm();
-  bindStudentUnitForm();
-  bindStudentForms();
-  bindStudentOopsBoard();
-  bindStudentLogout();
-  renderStudentDashboard();
-}
-
-if (page === "teacher") {
-  guardTeacherPage();
-  bindTeacherControls();
-  bindTeacherPanelToggles();
-  bindTeacherUnitEntry();
-  bindRosterSheetTools();
-  bindRosterForm();
-  renderTeacherDashboard();
-}
+void initializeApp();
 
 window.addEventListener("storage", (event) => {
-  if (event.key !== STORAGE_KEY) {
+  if (event.key === BACKEND_URL_STORAGE_KEY) {
+    window.location.reload();
     return;
   }
 
-  const next = loadState();
-  state.weatherCheckins = next.weatherCheckins;
-  state.habitChecks = next.habitChecks;
-  state.logs = next.logs;
-  state.studentRoster = next.studentRoster;
-  state.oopsPosts = next.oopsPosts;
-  state.oopsComments = next.oopsComments;
+  if (event.key !== getScopedStorageKey(STORAGE_KEY)) {
+    return;
+  }
+
+  replaceState(loadLocalStateCache());
 
   if (page === "student") {
+    renderBackendUi();
     renderStudentDashboard();
     renderStudentOopsWall();
   }
+  if (page === "teacher-login") {
+    renderBackendUi();
+  }
   if (page === "teacher") {
+    renderBackendUi();
     renderTeacherDashboard();
   }
 });
+
+async function initializeApp() {
+  syncBackendUrlFromQuery();
+  appRuntime.backendUrl = resolveBackendUrl();
+
+  const nextState = await loadState();
+  replaceState(nextState);
+
+  if (page === "teacher-login") {
+    bindBackendConfigForms();
+    bindTeacherLoginForm();
+    renderBackendUi();
+    return;
+  }
+
+  if (page === "home") {
+    renderBackendUi();
+    return;
+  }
+
+  if (page === "student") {
+    bindBackendConfigForms();
+    renderBackendUi();
+    setupTabs();
+    setupWeatherOptions();
+    bindStudentUnitSelects();
+    bindStudentAuthForm();
+    bindStudentUnitForm();
+    bindStudentForms();
+    bindStudentOopsBoard();
+    bindStudentLogout();
+    renderStudentDashboard();
+    return;
+  }
+
+  if (page === "teacher") {
+    guardTeacherPage();
+    bindBackendConfigForms();
+    renderBackendUi();
+    bindTeacherControls();
+    bindTeacherPanelToggles();
+    bindTeacherUnitEntry();
+    bindRosterSheetTools();
+    bindRosterForm();
+    renderTeacherDashboard();
+  }
+}
 
 function normalizeClassCode(value) {
   return String(value || "").trim().toUpperCase();
@@ -113,8 +147,8 @@ function unitPath(subject, middleUnit, minorUnit) {
   return `${subject} · ${middleUnit} · ${minorUnit}`;
 }
 
-function loadState() {
-  const fallback = {
+function createEmptyState() {
+  return {
     weatherCheckins: [],
     habitChecks: [],
     logs: [],
@@ -122,21 +156,98 @@ function loadState() {
     oopsPosts: [],
     oopsComments: []
   };
+}
 
-  const parseSource = (raw) => {
-    if (!raw) {
-      return null;
-    }
-    try {
-      return JSON.parse(raw);
-    } catch (error) {
-      return null;
-    }
-  };
+function replaceState(nextState) {
+  state.weatherCheckins = nextState.weatherCheckins;
+  state.habitChecks = nextState.habitChecks;
+  state.logs = nextState.logs;
+  state.studentRoster = nextState.studentRoster;
+  state.oopsPosts = nextState.oopsPosts;
+  state.oopsComments = nextState.oopsComments;
+}
 
-  const sources = [localStorage.getItem(STORAGE_KEY), ...LEGACY_STORAGE_KEYS.map((key) => localStorage.getItem(key))];
-  const parsed = sources.map(parseSource).find(Boolean);
-  if (!parsed) {
+function normalizeBackendUrl(value) {
+  const next = String(value || "").trim();
+  if (!next) {
+    return "";
+  }
+
+  try {
+    const url = new URL(next);
+    url.hash = "";
+    return url.toString();
+  } catch (error) {
+    return "";
+  }
+}
+
+function syncBackendUrlFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const backendUrl = normalizeBackendUrl(params.get("backend"));
+  if (backendUrl) {
+    localStorage.setItem(BACKEND_URL_STORAGE_KEY, backendUrl);
+  }
+}
+
+function resolveBackendUrl() {
+  const stored = normalizeBackendUrl(localStorage.getItem(BACKEND_URL_STORAGE_KEY));
+  if (stored) {
+    return stored;
+  }
+  return normalizeBackendUrl(DEFAULT_TEACHER_GAS_WEB_APP_URL);
+}
+
+function getActiveBackendUrl() {
+  return appRuntime.backendUrl || normalizeBackendUrl(DEFAULT_TEACHER_GAS_WEB_APP_URL);
+}
+
+function hasConfiguredBackend() {
+  return Boolean(getActiveBackendUrl());
+}
+
+function setConfiguredBackendUrl(url) {
+  const normalized = normalizeBackendUrl(url);
+  if (normalized) {
+    localStorage.setItem(BACKEND_URL_STORAGE_KEY, normalized);
+  } else {
+    localStorage.removeItem(BACKEND_URL_STORAGE_KEY);
+  }
+  appRuntime.backendUrl = normalized;
+}
+
+function getScopedStorageKey(baseKey) {
+  const scope = hasConfiguredBackend() ? encodeURIComponent(getActiveBackendUrl()) : "local";
+  return `${baseKey}::${scope}`;
+}
+
+function getScopedLocalItem(baseKey) {
+  return localStorage.getItem(getScopedStorageKey(baseKey));
+}
+
+function setScopedLocalItem(baseKey, value) {
+  localStorage.setItem(getScopedStorageKey(baseKey), value);
+}
+
+function removeScopedLocalItem(baseKey) {
+  localStorage.removeItem(getScopedStorageKey(baseKey));
+}
+
+function getScopedSessionItem(baseKey) {
+  return sessionStorage.getItem(getScopedStorageKey(baseKey));
+}
+
+function setScopedSessionItem(baseKey, value) {
+  sessionStorage.setItem(getScopedStorageKey(baseKey), value);
+}
+
+function removeScopedSessionItem(baseKey) {
+  sessionStorage.removeItem(getScopedStorageKey(baseKey));
+}
+
+function sanitizePersistedState(parsed) {
+  const fallback = createEmptyState();
+  if (!parsed || typeof parsed !== "object") {
     return fallback;
   }
 
@@ -182,6 +293,46 @@ function loadState() {
     oopsPosts: parsedPosts,
     oopsComments: parsedComments
   };
+}
+
+function loadLocalStateCache() {
+  const parseSource = (raw) => {
+    if (!raw) {
+      return null;
+    }
+    try {
+      return JSON.parse(raw);
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const sources = [
+    getScopedLocalItem(STORAGE_KEY),
+    ...LEGACY_STORAGE_KEYS.map((key) => getScopedLocalItem(key)),
+    localStorage.getItem(STORAGE_KEY),
+    ...LEGACY_STORAGE_KEYS.map((key) => localStorage.getItem(key))
+  ];
+
+  const parsed = sources.map(parseSource).find(Boolean);
+  return sanitizePersistedState(parsed);
+}
+
+async function loadState() {
+  const localState = loadLocalStateCache();
+  if (!hasConfiguredBackend()) {
+    return localState;
+  }
+
+  try {
+    const payload = await callBackend("getState");
+    const remoteState = sanitizePersistedState(payload.state);
+    persistLocalStateSnapshot(remoteState);
+    return remoteState;
+  } catch (error) {
+    setBackendRuntimeFeedback("원격 교실 데이터를 불러오지 못해 현재 브라우저 캐시를 사용합니다.", "error");
+    return localState;
+  }
 }
 
 function sanitizeRosterItem(item) {
@@ -270,13 +421,298 @@ function sanitizeOopsComment(item) {
   };
 }
 
+function snapshotState() {
+  return {
+    weatherCheckins: [...state.weatherCheckins],
+    habitChecks: [...state.habitChecks],
+    logs: [...state.logs],
+    studentRoster: [...state.studentRoster],
+    oopsPosts: [...state.oopsPosts],
+    oopsComments: [...state.oopsComments]
+  };
+}
+
+function persistLocalStateSnapshot(nextState = state) {
+  setScopedLocalItem(STORAGE_KEY, JSON.stringify(nextState));
+}
+
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  const nextState = snapshotState();
+  persistLocalStateSnapshot(nextState);
+
+  if (!hasConfiguredBackend()) {
+    return;
+  }
+
+  appRuntime.remoteSyncChain = appRuntime.remoteSyncChain
+    .catch(() => null)
+    .then(() => callBackend("saveState", {
+      method: "POST",
+      body: { state: nextState }
+    }))
+    .then(() => {
+      setBackendRuntimeFeedback("교실 데이터가 시트에 저장되었습니다.", "success");
+    })
+    .catch(() => {
+      setBackendRuntimeFeedback("원격 저장에 실패해 현재 브라우저에만 임시 저장되었습니다.", "error");
+    });
+}
+
+async function callBackend(action, options = {}) {
+  const endpoint = getTeacherGasAuthUrl();
+  if (!endpoint) {
+    throw new Error("backend-not-configured");
+  }
+
+  if ((options.method || "GET").toUpperCase() === "POST") {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify({
+        action,
+        ...options.body
+      })
+    });
+    return parseBackendResponse(response);
+  }
+
+  const url = new URL(endpoint);
+  url.searchParams.set("action", action);
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    credentials: "include",
+    cache: "no-store"
+  });
+  return parseBackendResponse(response);
+}
+
+async function parseBackendResponse(response) {
+  const text = await response.text();
+  let payload = null;
+
+  try {
+    payload = text ? JSON.parse(text) : null;
+  } catch (error) {
+    throw new Error("invalid-backend-response");
+  }
+
+  if (!response.ok) {
+    throw new Error(payload?.error || `backend-${response.status}`);
+  }
+  if (!payload || payload.ok === false) {
+    throw new Error(payload?.error || "backend-request-failed");
+  }
+  return payload;
+}
+
+function buildPageUrl(pageName) {
+  const url = new URL(pageName, window.location.href);
+  if (hasConfiguredBackend()) {
+    url.searchParams.set("backend", getActiveBackendUrl());
+  }
+  return url.toString();
+}
+
+function buildCurrentPageUrl() {
+  const url = new URL(window.location.href);
+  ["teacherAuth", "email", "ts", "state", "reason", "action", "callbackUrl"].forEach((key) => {
+    url.searchParams.delete(key);
+  });
+  if (hasConfiguredBackend()) {
+    url.searchParams.set("backend", getActiveBackendUrl());
+  } else {
+    url.searchParams.delete("backend");
+  }
+  return url.toString();
+}
+
+function buildStudentShareLink() {
+  return hasConfiguredBackend() ? buildPageUrl("student.html") : "";
+}
+
+function buildTeacherShareLink() {
+  return hasConfiguredBackend() ? buildPageUrl("teacher-login.html") : "";
+}
+
+function getToneColor(tone) {
+  if (tone === "error") {
+    return "#d94841";
+  }
+  if (tone === "success") {
+    return "#0f9d94";
+  }
+  return "#35506d";
+}
+
+function applyFeedback(node, message, tone = "info") {
+  if (!node) {
+    return;
+  }
+  node.textContent = message;
+  node.style.color = getToneColor(tone);
+}
+
+function setBackendRuntimeFeedback(message, tone = "info") {
+  applyFeedback(document.querySelector("#backend-runtime-feedback"), message, tone);
+}
+
+function setElementDisabled(selector, disabled) {
+  const element = document.querySelector(selector);
+  if (!element) {
+    return;
+  }
+  element.querySelectorAll("input, select, button, textarea").forEach((node) => {
+    if (disabled) {
+      node.setAttribute("disabled", "disabled");
+    } else {
+      node.removeAttribute("disabled");
+    }
+  });
+}
+
+function renderBackendUi() {
+  const backendUrl = getActiveBackendUrl();
+  const backendInput = document.querySelector("#backend-url-input");
+  const status = document.querySelector("#backend-connection-status");
+  const loginButton = document.querySelector("#teacher-google-login");
+  const studentShare = document.querySelector("#student-share-link");
+  const teacherShare = document.querySelector("#teacher-share-link");
+  const missingBackendForStudent = page === "student" && !backendUrl && state.studentRoster.length === 0;
+
+  document.querySelectorAll("[data-page-link]").forEach((link) => {
+    const key = link.dataset.pageLink;
+    const pageName = {
+      home: "index.html",
+      student: "student.html",
+      "teacher-login": "teacher-login.html"
+    }[key];
+
+    if (!pageName) {
+      return;
+    }
+
+    link.href = backendUrl ? buildPageUrl(pageName) : pageName;
+  });
+
+  if (backendInput) {
+    backendInput.value = backendUrl;
+  }
+
+  if (status) {
+    if (backendUrl) {
+      applyFeedback(status, `현재 연결된 교실 저장소: ${backendUrl}`, "success");
+    } else if (page === "student") {
+      applyFeedback(status, "교사가 공유한 학생용 링크로 접속해야 이 교실 데이터에 연결됩니다.", "error");
+    } else {
+      applyFeedback(status, "먼저 본인 Google Apps Script 웹앱 URL을 저장해 주세요.", "error");
+    }
+  }
+
+  if (loginButton) {
+    loginButton.disabled = !backendUrl;
+  }
+
+  if (studentShare) {
+    studentShare.value = buildStudentShareLink();
+  }
+  if (teacherShare) {
+    teacherShare.value = buildTeacherShareLink();
+  }
+
+  setElementDisabled("#student-auth-stage", missingBackendForStudent);
+}
+
+function bindBackendConfigForms() {
+  const form = document.querySelector("#backend-config-form");
+  const input = document.querySelector("#backend-url-input");
+  const feedback = document.querySelector("#backend-config-feedback");
+  const clearButton = document.querySelector("#backend-clear-btn");
+  const copyStudentButton = document.querySelector("#copy-student-link");
+  const copyTeacherButton = document.querySelector("#copy-teacher-link");
+  const shareFeedback = document.querySelector("#backend-share-feedback");
+
+  if (form && input && feedback) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const backendUrl = normalizeBackendUrl(input.value);
+      if (!backendUrl) {
+        applyFeedback(feedback, "유효한 Apps Script 웹앱 URL을 입력해 주세요.", "error");
+        return;
+      }
+
+      setConfiguredBackendUrl(backendUrl);
+      applyFeedback(feedback, "교실 저장소 주소를 저장했습니다. 새 주소로 다시 불러옵니다.", "success");
+      window.location.href = buildPageUrl(page === "teacher" ? "teacher.html" : "teacher-login.html");
+    });
+  }
+
+  if (clearButton) {
+    clearButton.addEventListener("click", () => {
+      setConfiguredBackendUrl("");
+      setTeacherAuthenticated(null);
+      window.location.href = "teacher-login.html";
+    });
+  }
+
+  if (copyStudentButton) {
+    copyStudentButton.addEventListener("click", async () => {
+      const link = buildStudentShareLink();
+      if (!link) {
+        applyFeedback(shareFeedback, "먼저 Apps Script URL을 저장해 주세요.", "error");
+        return;
+      }
+      const copied = await copyText(link);
+      applyFeedback(shareFeedback, copied ? "학생용 링크를 복사했습니다." : "복사에 실패했습니다. 링크를 직접 선택해 복사해 주세요.", copied ? "success" : "error");
+    });
+  }
+
+  if (copyTeacherButton) {
+    copyTeacherButton.addEventListener("click", async () => {
+      const link = buildTeacherShareLink();
+      if (!link) {
+        applyFeedback(shareFeedback, "먼저 Apps Script URL을 저장해 주세요.", "error");
+        return;
+      }
+      const copied = await copyText(link);
+      applyFeedback(shareFeedback, copied ? "교사용 로그인 링크를 복사했습니다." : "복사에 실패했습니다. 링크를 직접 선택해 복사해 주세요.", copied ? "success" : "error");
+    });
+  }
+}
+
+async function copyText(value) {
+  if (!value) {
+    return false;
+  }
+
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  const helper = document.createElement("textarea");
+  helper.value = value;
+  helper.setAttribute("readonly", "readonly");
+  helper.style.position = "fixed";
+  helper.style.opacity = "0";
+  document.body.appendChild(helper);
+  helper.select();
+  const copied = document.execCommand("copy");
+  document.body.removeChild(helper);
+  return copied;
 }
 
 function getStudentSession() {
   try {
-    const raw = localStorage.getItem(STUDENT_SESSION_KEY);
+    const raw = getScopedLocalItem(STUDENT_SESSION_KEY);
     if (!raw) {
       return null;
     }
@@ -291,16 +727,16 @@ function getStudentSession() {
 }
 
 function setStudentSession(session) {
-  localStorage.setItem(STUDENT_SESSION_KEY, JSON.stringify(session));
+  setScopedLocalItem(STUDENT_SESSION_KEY, JSON.stringify(session));
 }
 
 function clearStudentSession() {
-  localStorage.removeItem(STUDENT_SESSION_KEY);
+  removeScopedLocalItem(STUDENT_SESSION_KEY);
 }
 
 function loadStudentAuthState() {
   try {
-    const raw = localStorage.getItem(STUDENT_AUTH_STATE_KEY);
+    const raw = getScopedLocalItem(STUDENT_AUTH_STATE_KEY);
     if (!raw) {
       return { failCount: 0, lockedUntil: 0 };
     }
@@ -315,7 +751,7 @@ function loadStudentAuthState() {
 }
 
 function saveStudentAuthState(authState) {
-  localStorage.setItem(STUDENT_AUTH_STATE_KEY, JSON.stringify(authState));
+  setScopedLocalItem(STUDENT_AUTH_STATE_KEY, JSON.stringify(authState));
 }
 
 function getRemainingLockMs(authState) {
@@ -328,40 +764,144 @@ function formatRemainingMinutes(ms) {
 
 function guardTeacherPage() {
   if (!isTeacherAuthenticated()) {
-    window.location.href = "teacher-login.html";
+    window.location.href = buildPageUrl("teacher-login.html");
   }
 }
 
 function isTeacherAuthenticated() {
-  return sessionStorage.getItem(TEACHER_AUTH_KEY) === "ok";
-}
-
-function setTeacherAuthenticated(ok) {
-  if (ok) {
-    sessionStorage.setItem(TEACHER_AUTH_KEY, "ok");
-  } else {
-    sessionStorage.removeItem(TEACHER_AUTH_KEY);
+  try {
+    const raw = getScopedSessionItem(TEACHER_AUTH_KEY);
+    if (!raw) {
+      return false;
+    }
+    const parsed = JSON.parse(raw);
+    if (!parsed || !parsed.email || !parsed.expiresAt) {
+      return false;
+    }
+    if (Date.now() > Number(parsed.expiresAt)) {
+      removeScopedSessionItem(TEACHER_AUTH_KEY);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    removeScopedSessionItem(TEACHER_AUTH_KEY);
+    return false;
   }
 }
 
+function setTeacherAuthenticated(profile) {
+  if (profile && profile.email) {
+    const issuedAt = Number(profile.issuedAt) || Date.now();
+    const expiresAt = issuedAt + TEACHER_AUTH_SESSION_HOURS * 60 * 60 * 1000;
+    setScopedSessionItem(TEACHER_AUTH_KEY, JSON.stringify({
+      email: String(profile.email),
+      issuedAt,
+      expiresAt
+    }));
+  } else {
+    removeScopedSessionItem(TEACHER_AUTH_KEY);
+  }
+}
+
+function getTeacherGasAuthUrl() {
+  return getActiveBackendUrl();
+}
+
+function createAuthFlowStateToken() {
+  if (window.crypto && typeof window.crypto.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    window.crypto.getRandomValues(bytes);
+    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+  return `state-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function consumeTeacherAuthCallback(feedback) {
+  const params = new URLSearchParams(window.location.search);
+  const result = params.get("teacherAuth");
+  if (!result) {
+    return;
+  }
+
+  const email = normalizeUnitText(params.get("email"));
+  const tsRaw = Number(params.get("ts"));
+  const returnedState = normalizeUnitText(params.get("state"));
+  const expectedState = normalizeUnitText(getScopedSessionItem(TEACHER_AUTH_FLOW_STATE_KEY));
+  const now = Date.now();
+  removeScopedSessionItem(TEACHER_AUTH_FLOW_STATE_KEY);
+
+  if (
+    result === "ok"
+    && email
+    && returnedState
+    && expectedState
+    && returnedState === expectedState
+    && Number.isFinite(tsRaw)
+    && Math.abs(now - tsRaw) <= 10 * 60 * 1000
+  ) {
+    setTeacherAuthenticated({ email, issuedAt: tsRaw });
+    if (feedback) {
+      feedback.textContent = `${email} 계정으로 인증되었습니다. 교사 화면으로 이동합니다.`;
+      feedback.style.color = "#0f9d94";
+    }
+    window.history.replaceState({}, "", buildCurrentPageUrl());
+    window.location.href = buildPageUrl("teacher.html");
+    return;
+  }
+
+  if (feedback) {
+    feedback.textContent = "구글 인증에 실패했습니다. 다시 시도해 주세요.";
+    feedback.style.color = "#d94841";
+  }
+  window.history.replaceState({}, "", buildCurrentPageUrl());
+}
+
 function bindTeacherLoginForm() {
+  const form = document.querySelector("#teacher-login-form");
+  const loginButton = document.querySelector("#teacher-google-login");
+  const feedback = document.querySelector("#teacher-login-feedback");
+
+  consumeTeacherAuthCallback(feedback);
+
   if (isTeacherAuthenticated()) {
     window.location.href = "teacher.html";
     return;
   }
-  const form = document.querySelector("#teacher-login-form");
-  const pinInput = document.querySelector("#teacher-pin");
-  const feedback = document.querySelector("#teacher-login-feedback");
+
+  if (!form || !loginButton || !feedback) {
+    return;
+  }
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    if (pinInput.value.trim() !== TEACHER_PIN) {
-      feedback.textContent = "PIN이 일치하지 않습니다.";
+
+    const endpoint = getTeacherGasAuthUrl();
+    if (!endpoint) {
+      feedback.textContent = "먼저 이 교실의 Apps Script 웹앱 URL을 저장해 주세요.";
       feedback.style.color = "#d94841";
       return;
     }
-    setTeacherAuthenticated(true);
-    window.location.href = "teacher.html";
+
+    let authUrl;
+    try {
+      authUrl = new URL(endpoint);
+    } catch (error) {
+      feedback.textContent = "TEACHER_GAS_WEB_APP_URL 값이 올바른 URL 형식이 아닙니다.";
+      feedback.style.color = "#d94841";
+      return;
+    }
+
+    const callbackUrl = buildPageUrl("teacher-login.html");
+    const flowState = createAuthFlowStateToken();
+    setScopedSessionItem(TEACHER_AUTH_FLOW_STATE_KEY, flowState);
+
+    authUrl.searchParams.set("action", "startTeacherAuth");
+    authUrl.searchParams.set("callbackUrl", callbackUrl);
+    authUrl.searchParams.set("state", flowState);
+
+    feedback.textContent = "구글 인증 페이지로 이동합니다...";
+    feedback.style.color = "#0f9d94";
+    window.location.href = authUrl.toString();
   });
 }
 
@@ -1040,8 +1580,8 @@ function bindTeacherControls() {
   });
 
   document.querySelector("#teacher-logout").addEventListener("click", () => {
-    setTeacherAuthenticated(false);
-    window.location.href = "teacher-login.html";
+    setTeacherAuthenticated(null);
+    window.location.href = buildPageUrl("teacher-login.html");
   });
 }
 

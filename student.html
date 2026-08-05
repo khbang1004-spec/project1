@@ -16,16 +16,23 @@
 
   <header class="hero">
     <div class="page-links">
-      <a href="index.html">역할 선택</a>
-      <a href="teacher-login.html">교사 로그인</a>
+      <a data-page-link="home" href="index.html">역할 선택</a>
+      <a data-page-link="teacher-login" href="teacher-login.html">교사 로그인</a>
     </div>
     <p class="eyebrow">SEL 기반 수학 수업 도구</p>
     <h1>학생 체크인</h1>
-    <p class="hero-copy">내 이름으로 참여하면, 바로 내 누적 기록을 볼 수 있어요.</p>
+    <p class="hero-copy">교사가 공유한 전용 링크로 들어오면, 해당 교실의 누적 기록에 연결됩니다.</p>
   </header>
 
   <main class="layout-auth">
     <section class="card student-panel">
+      <section class="identity-box">
+        <h2>교실 연결</h2>
+        <p class="section-copy">교사가 보낸 학생용 링크로 접속하면 이 교실의 시트와 자동으로 연결됩니다.</p>
+        <p id="backend-connection-status" class="feedback" aria-live="polite"></p>
+        <p id="backend-runtime-feedback" class="feedback" aria-live="polite"></p>
+      </section>
+
       <section id="student-auth-stage" class="identity-box">
         <h2>학생 입장 인증</h2>
         <p class="section-copy">교사가 등록한 반코드, 학번, 이름으로 먼저 인증해 주세요.</p>
@@ -205,7 +212,7 @@
   </main>
 
   <footer class="footer-note">
-    동일 브라우저에서는 새로고침 후에도 누적 데이터가 유지됩니다.
+    교사별 Apps Script가 연결되면 같은 교실 링크에서 누적 데이터가 공유됩니다.
   </footer>
 
   <script src="app.js"></script>

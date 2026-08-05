@@ -16,23 +16,37 @@
 
   <header class="hero">
     <div class="page-links">
-      <a href="index.html">역할 선택</a>
-      <a href="student.html">학생 화면</a>
+      <a data-page-link="home" href="index.html">역할 선택</a>
+      <a data-page-link="student" href="student.html">학생 화면</a>
     </div>
     <p class="eyebrow">교사 전용 접근</p>
     <h1>교사 로그인</h1>
-    <p class="hero-copy">교사 PIN을 입력하면 대시보드에 접근할 수 있습니다.</p>
+    <p class="hero-copy">교사마다 자기 Apps Script와 자기 시트에 연결된 독립 교실 공간을 사용합니다.</p>
   </header>
 
   <main class="layout-single">
     <section class="card login-card">
+      <section class="identity-box stack-gap">
+        <h2>교실 연결 설정</h2>
+        <p class="section-copy">처음 한 번만 본인 Google Apps Script 웹앱 URL을 저장하면 됩니다.</p>
+        <form id="backend-config-form" class="stack-gap">
+          <label class="field-label" for="backend-url-input">Apps Script 웹앱 URL</label>
+          <input id="backend-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" required>
+          <div class="inline-actions">
+            <button class="primary-btn" type="submit">교실 주소 저장</button>
+            <button id="backend-clear-btn" class="ghost-btn" type="button">설정 지우기</button>
+          </div>
+          <p id="backend-config-feedback" class="feedback" aria-live="polite"></p>
+        </form>
+        <p id="backend-connection-status" class="feedback" aria-live="polite"></p>
+      </section>
+
       <form id="teacher-login-form" class="stack-gap">
-        <label class="field-label" for="teacher-pin">교사 PIN</label>
-        <input id="teacher-pin" type="password" inputmode="numeric" maxlength="12" placeholder="PIN 입력" required>
-        <button class="primary-btn" type="submit">교사 대시보드 열기</button>
+        <p class="section-copy">구글 계정으로 인증하면 교사 화면으로 이동합니다.</p>
+        <button id="teacher-google-login" class="primary-btn" type="submit">Google 인증으로 로그인</button>
         <p id="teacher-login-feedback" class="feedback" aria-live="polite"></p>
       </form>
-      <p class="section-copy">현재 프로토타입 기본 PIN은 2468 입니다. 배포 시 서버 인증으로 전환하세요.</p>
+      <p id="backend-runtime-feedback" class="feedback" aria-live="polite"></p>
     </section>
   </main>
 

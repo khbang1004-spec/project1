@@ -16,17 +16,47 @@
 
   <header class="hero">
     <div class="page-links">
-      <a href="index.html">역할 선택</a>
-      <a href="student.html">학생 화면</a>
+      <a data-page-link="home" href="index.html">역할 선택</a>
+      <a data-page-link="student" href="student.html">학생 화면</a>
       <button id="teacher-logout" class="linkish-btn" type="button">로그아웃</button>
     </div>
     <p class="eyebrow">SEL 기반 수학 수업 도구</p>
     <h1>교사 대시보드</h1>
-    <p class="hero-copy">학급 전체 누적 데이터와 학생별 누적 현황을 함께 확인합니다.</p>
+    <p class="hero-copy">내 시트에 저장된 학급 전체 누적 데이터와 학생별 누적 현황을 함께 확인합니다.</p>
   </header>
 
   <main class="layout-single">
     <div class="teacher-grid">
+
+      <section class="dash-panel span-full teacher-home-only">
+        <div class="dash-panel-header color-teal">
+          <span class="panel-icon">🔗</span>
+          <h2>내 교실 연결</h2>
+        </div>
+        <div class="stack-gap">
+          <p class="section-copy">이 교실은 교사 본인 Apps Script URL에 연결됩니다. 학생에게는 학생용 링크만 공유하면 됩니다.</p>
+          <form id="backend-config-form" class="stack-gap">
+            <label class="field-label" for="backend-url-input">Apps Script 웹앱 URL</label>
+            <input id="backend-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" required>
+            <div class="inline-actions">
+              <button class="primary-btn" type="submit">교실 주소 저장</button>
+              <button id="backend-clear-btn" class="ghost-btn" type="button">설정 지우기</button>
+            </div>
+            <p id="backend-config-feedback" class="feedback" aria-live="polite"></p>
+          </form>
+          <p id="backend-connection-status" class="feedback" aria-live="polite"></p>
+          <label class="field-label" for="student-share-link">학생용 링크</label>
+          <input id="student-share-link" type="text" readonly>
+          <label class="field-label" for="teacher-share-link">교사용 로그인 링크</label>
+          <input id="teacher-share-link" type="text" readonly>
+          <div class="inline-actions">
+            <button id="copy-student-link" class="ghost-btn" type="button">학생 링크 복사</button>
+            <button id="copy-teacher-link" class="ghost-btn" type="button">교사 링크 복사</button>
+          </div>
+          <p id="backend-share-feedback" class="feedback" aria-live="polite"></p>
+          <p id="backend-runtime-feedback" class="feedback" aria-live="polite"></p>
+        </div>
+      </section>
 
       <!-- ① 전체 수업 현황 개요 -->
       <section class="dash-panel teacher-home-only">
@@ -241,7 +271,7 @@
   </main>
 
   <footer class="footer-note">
-    브라우저 로컬 저장 기반 프로토타입
+    교사별 Google Apps Script 및 시트 연동형 프로토타입
   </footer>
 
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>

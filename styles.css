@@ -334,6 +334,12 @@ h3 {
   gap: 0.65rem;
 }
 
+.inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
 .field-label {
   font-size: 0.9rem;
   font-weight: 600;
@@ -348,6 +354,11 @@ select {
   font-size: 0.95rem;
   font-family: inherit;
   background: #fff;
+}
+
+input[readonly] {
+  background: #f8fbff;
+  color: #35506d;
 }
 
 textarea {
@@ -949,6 +960,10 @@ button:focus {
 
   .unit-select-form {
     grid-template-columns: 1fr;
+  }
+
+  .inline-actions {
+    flex-direction: column;
   }
 
   .session-line {

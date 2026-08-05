@@ -22,21 +22,23 @@
 
   <main class="layout-single">
     <section class="card role-grid">
-      <a class="role-card" href="student.html">
+      <a class="role-card" data-page-link="student" href="student.html">
         <p class="role-label">STUDENT</p>
         <h2>학생 화면</h2>
-        <p>감정 체크인, 오답 공감, 해빗 체크를 제출하고 내 누적 기록을 확인합니다.</p>
+        <p>교사가 공유한 링크로 감정 체크인, 오답 공감, 해빗 체크를 제출하고 내 누적 기록을 확인합니다.</p>
       </a>
-      <a class="role-card" href="teacher-login.html">
+      <a class="role-card" data-page-link="teacher-login" href="teacher-login.html">
         <p class="role-label">TEACHER</p>
         <h2>교사 화면</h2>
-        <p>PIN 인증 후 학급 전체 누적 데이터와 학생별 누적 현황을 관찰합니다.</p>
+        <p>본인 Apps Script를 연결한 뒤 Google 인증으로 들어가, 자기 시트에 저장된 학급 데이터를 관리합니다.</p>
       </a>
     </section>
   </main>
 
   <footer class="footer-note">
-    브라우저 로컬 저장 기반 프로토타입
+    교사별 독립 시트 기반으로 배포 가능한 프로토타입
   </footer>
+
+  <script src="app.js"></script>
 </body>
 </html>
