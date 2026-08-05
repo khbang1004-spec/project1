@@ -79,7 +79,8 @@ async function initializeApp() {
   syncBackendUrlFromQuery();
   appRuntime.backendUrl = resolveBackendUrl();
 
-  const nextState = await loadState();
+  const shouldUseRemoteState = page === "student" || page === "teacher";
+  const nextState = await loadState(shouldUseRemoteState);
   replaceState(nextState);
 
   if (page === "teacher-login") {
@@ -318,9 +319,9 @@ function loadLocalStateCache() {
   return sanitizePersistedState(parsed);
 }
 
-async function loadState() {
+async function loadState(useRemote = true) {
   const localState = loadLocalStateCache();
-  if (!hasConfiguredBackend()) {
+  if (!useRemote || !hasConfiguredBackend()) {
     return localState;
   }
 
@@ -467,7 +468,6 @@ async function callBackend(action, options = {}) {
   if ((options.method || "GET").toUpperCase() === "POST") {
     const response = await fetch(endpoint, {
       method: "POST",
-      credentials: "include",
       headers: {
         "Content-Type": "text/plain;charset=utf-8"
       },
@@ -484,7 +484,6 @@ async function callBackend(action, options = {}) {
 
   const response = await fetch(url.toString(), {
     method: "GET",
-    credentials: "include",
     cache: "no-store"
   });
   return parseBackendResponse(response);
@@ -775,7 +774,7 @@ function isTeacherAuthenticated() {
       return false;
     }
     const parsed = JSON.parse(raw);
-    if (!parsed || !parsed.email || !parsed.expiresAt) {
+    if (!parsed || !parsed.identity || !parsed.expiresAt) {
       return false;
     }
     if (Date.now() > Number(parsed.expiresAt)) {
@@ -790,11 +789,11 @@ function isTeacherAuthenticated() {
 }
 
 function setTeacherAuthenticated(profile) {
-  if (profile && profile.email) {
+  if (profile && profile.identity) {
     const issuedAt = Number(profile.issuedAt) || Date.now();
     const expiresAt = issuedAt + TEACHER_AUTH_SESSION_HOURS * 60 * 60 * 1000;
     setScopedSessionItem(TEACHER_AUTH_KEY, JSON.stringify({
-      email: String(profile.email),
+      identity: String(profile.identity),
       issuedAt,
       expiresAt
     }));
@@ -824,6 +823,8 @@ function consumeTeacherAuthCallback(feedback) {
   }
 
   const email = normalizeUnitText(params.get("email"));
+  const teacherId = normalizeUnitText(params.get("teacherId"));
+  const identity = email || teacherId;
   const tsRaw = Number(params.get("ts"));
   const returnedState = normalizeUnitText(params.get("state"));
   const expectedState = normalizeUnitText(getScopedSessionItem(TEACHER_AUTH_FLOW_STATE_KEY));
@@ -832,16 +833,20 @@ function consumeTeacherAuthCallback(feedback) {
 
   if (
     result === "ok"
-    && email
+    && identity
     && returnedState
     && expectedState
     && returnedState === expectedState
     && Number.isFinite(tsRaw)
     && Math.abs(now - tsRaw) <= 10 * 60 * 1000
   ) {
-    setTeacherAuthenticated({ email, issuedAt: tsRaw });
+    setTeacherAuthenticated({ identity, issuedAt: tsRaw });
     if (feedback) {
-      feedback.textContent = `${email} 계정으로 인증되었습니다. 교사 화면으로 이동합니다.`;
+      if (email) {
+        feedback.textContent = `${email} 계정으로 인증되었습니다. 교사 화면으로 이동합니다.`;
+      } else {
+        feedback.textContent = "구글 인증이 완료되었습니다. 교사 화면으로 이동합니다.";
+      }
       feedback.style.color = "#0f9d94";
     }
     window.history.replaceState({}, "", buildCurrentPageUrl());
